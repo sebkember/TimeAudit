@@ -1,7 +1,12 @@
+from app import limiter
+from flask import Blueprint, request
+
 from ...utils.auth import decode_jwt_token
 from ...utils.ai import generate_user_schedule
 
-@app.route("/api/account/generate-schedule", methods=["POST"])
+generate_bp = Blueprint("generate-schedule", __name__)
+
+@generate_bp.route("/api/account/generate-schedule", methods=["POST"])
 @limiter.limit("5 per hour")
 def generate_schedule_api():
     # Get the token from the request

@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request, Blueprint
 import json
 
 from ...utils.auth import decode_jwt_token
@@ -7,7 +7,9 @@ from ...utils.streak import format_streak
 from ...db.activities import get_activities_from_database_as_dicts, add_activities_to_database, remove_activity_from_database, sync_activities_with_database, update_activity_in_database, get_currently_running_activity, get_activity_id_from_database, add_activity_to_database, remove_running_activity_from_database
 from ...db.users import update_streak, reset_streak_if_expired
 
-@app.route("/api/activities", methods=["GET", "POST"])
+activities_bp = Blueprint("activities", __name__)
+
+@activities_bp.route("/api/activities", methods=["GET", "POST"])
 def activities_api():
     if (request.method == "GET"):
         # Frontend is retrieving activities from the server
@@ -58,7 +60,7 @@ def activities_api():
             else:
                 return {"error": "activities_added_failed"}, 500
             
-@app.route("/api/activities/remove", methods=["POST"])
+@activities_bp.route("/api/activities/remove", methods=["POST"])
 def remove_activity_api():
     # Get the activity
     activity = request.get_json()
@@ -77,7 +79,7 @@ def remove_activity_api():
         # Remove the activity from the database
         remove_activity_from_database(activity, user_id)
 
-        # Reset the streak if applicable
+        # Reset the streak if activities_bplicable
         new_streak = reset_streak_if_expired(user_id)
 
         # Format the streak
@@ -87,7 +89,7 @@ def remove_activity_api():
     
 
     
-@app.route("/api/activities/sync", methods=["POST"])
+@activities_bp.route("/api/activities/sync", methods=["POST"])
 def sync_activities_api():
     # Get activities from request
     activities = request.get_json()
@@ -111,7 +113,7 @@ def sync_activities_api():
         else:
             return {"error": "activities_sync_failed"}, 500
         
-@app.route("/api/activities/edit", methods=["POST"])
+@activities_bp.route("/api/activities/edit", methods=["POST"])
 def update_activity_api():
     # Get the request data
     request_data = request.get_json()
@@ -141,7 +143,7 @@ def update_activity_api():
         else:
             return {"error": "update_activity_failed"}, 500
         
-@app.route("/api/activities/id", methods=["POST"])
+@activities_bp.route("/api/activities/id", methods=["POST"])
 def activity_id_api():
     # Get the activity
     activity = request.get_json()
@@ -165,7 +167,7 @@ def activity_id_api():
         else:
             return {"error": "get_activity_id_failed"}, 500
         
-@app.route("/api/activities/running", methods=["GET", "POST"])
+@activities_bp.route("/api/activities/running", methods=["GET", "POST"])
 def running_activity_api():
     if (request.method == "GET"):
         # Frontend is retrieving activity from the server
@@ -215,7 +217,7 @@ def running_activity_api():
             else:
                 return {"error": "activities_added_failed"}, 500
             
-@app.route("/api/activities/running/stop", methods=["POST"])
+@activities_bp.route("/api/activities/running/stop", methods=["POST"])
 def stop_running_activity_api():
     # Get the token
     token = request.cookies["token"]

@@ -1,10 +1,12 @@
-from flask import jsonify 
+from flask import jsonify, request, Blueprint
 
 from ...utils.auth import decode_jwt_token
 
 from ...db.scheduled_activities import get_scheduled_activities_from_database_as_dicts, add_scheduled_activities_to_database, remove_scheduled_activity_from_database, sync_scheduled_activities_with_database
 
-@app.route("/api/scheduled-activities", methods=["GET", "POST"])
+scheduled_activities_bp = Blueprint("scheduled-activities", __name__)
+
+@scheduled_activities_bp.route("/api/scheduled-activities", methods=["GET", "POST"])
 def scheduled_activities_api():
     if (request.method == "GET"):
         # Frontend is retrieving scheduled activities from the server
@@ -49,7 +51,7 @@ def scheduled_activities_api():
             else:
                 return {"error": "scheduled_activities_added_failed"}, 500
             
-@app.route("/api/scheduled-activities/remove", methods=["POST"])
+@scheduled_activities_bp.route("/api/scheduled-activities/remove", methods=["POST"])
 def remove_scheduled_activity_api():
     # Get the scheduled activity
     scheduled_activity = request.get_json()
@@ -70,7 +72,7 @@ def remove_scheduled_activity_api():
 
         return {"success": True}, 200
     
-@app.route("/api/scheduled-activities/sync", methods=["POST"])
+@scheduled_activities_bp.route("/api/scheduled-activities/sync", methods=["POST"])
 def sync_scheduled_activities_api():
     # Get scheduled activities from request
     scheduled_activities = request.get_json()

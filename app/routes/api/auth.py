@@ -1,6 +1,10 @@
+from flask import request, Blueprint
+
 from ...utils.auth import authenticate_user, decode_jwt_token
 
-@app.route("/api/auth", methods=["GET"])
+auth_bp = Blueprint("auth", __name__)
+
+@auth_bp.route("/api/auth", methods=["GET"])
 def auth():
     authenticated = False
     expired = False

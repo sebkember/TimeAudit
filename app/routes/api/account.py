@@ -1,11 +1,13 @@
-from flask import make_response
+from flask import make_response, request, Blueprint
 from email_validator import validate_email, EmailNotValidError
 
 from ...utils.auth import decode_jwt_token
 from ...utils.streak import format_streak
 from ...db.users import delete_account, email_exists_in_database, update_email_address, reset_streak_if_expired
 
-@app.route("/api/logout", methods=["POST"])
+account_bp = Blueprint("account", __name__)
+
+@account_bp.route("/api/logout", methods=["POST"])
 def logout_api():
     # Get the token from the request
     token = request.cookies["token"]
@@ -21,7 +23,7 @@ def logout_api():
     response.set_cookie("token", "", domain="192.168.1.162", expires=0, httponly=True, secure=False, samesite='Lax')
     return response
 
-@app.route("/api/account/delete", methods=["POST"])
+@account_bp.route("/api/account/delete", methods=["POST"])
 def delete_account_api():
     # Get the token from the request
     token = request.cookies["token"]
@@ -43,7 +45,7 @@ def delete_account_api():
     response.set_cookie("token", "", domain="192.168.1.162", expires=0, httponly=True, secure=False, samesite='Lax')
     return response
 
-@app.route("/api/account/change-email", methods=["POST"])
+@account_bp.route("/api/account/change-email", methods=["POST"])
 def change_email_api():
     # Get the token from the request
     token = request.cookies["token"]
@@ -81,7 +83,7 @@ def change_email_api():
     print("LOL")
     return {"success": True}, 200
 
-@app.route("/api/account/update-streak", methods=["POST"])
+@account_bp.route("/api/account/update-streak", methods=["POST"])
 def update_streak_api():
     # Get the token from the request
     token = request.cookies["token"]

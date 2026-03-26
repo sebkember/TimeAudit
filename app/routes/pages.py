@@ -1,20 +1,22 @@
-from flask import make_response, render_template
+from flask import make_response, render_template, request, Blueprint
 
 from ..utils.auth import get_authenticated_user
 
-@app.route('/', methods = ['GET', 'POST'])
+pages_bp = Blueprint("pages", __name__)
+
+@pages_bp.route('/', methods = ['GET', 'POST'])
 def index():
     return render_template("index.html")
 
-@app.route("/privacy-policy", methods = ["GET"])
+@pages_bp.route("/privacy-policy", methods = ["GET"])
 def privacy_policy():
     return render_template("privacy-policy.html")
 
-@app.route("/terms-of-service", methods = ["GET"])
+@pages_bp.route("/terms-of-service", methods = ["GET"])
 def terms_of_service():
     return render_template("terms.html")
 
-@app.route("/robots.txt", methods= ["GET"])
+@pages_bp.route("/robots.txt", methods= ["GET"])
 def robots_txt():
     # Create a response object
     response = make_response("User-agent: *\nDisallow: /api/\nSitemap: https://timeaudit.net/sitemap.xml")
@@ -24,7 +26,7 @@ def robots_txt():
     
     return response
 
-@app.route("/sitemap.xml", methods=["GET"])
+@pages_bp.route("/sitemap.xml", methods=["GET"])
 def sitemap_xml():
     # Create a response object
     response = make_response(render_template("sitemap.xml"), 200)
@@ -34,7 +36,7 @@ def sitemap_xml():
     
     return response
 
-@app.route("/audit", methods = ["GET", "POST"])
+@pages_bp.route("/audit", methods = ["GET", "POST"])
 def audit():
     user = get_authenticated_user(request)
     if user:
@@ -42,7 +44,7 @@ def audit():
         return render_template("statistics.html", email_address=email, streak=streak)  
     return render_template("statistics.html")
 
-@app.route('/calendar')
+@pages_bp.route('/calendar')
 def calendar():
     user = get_authenticated_user(request)
     if user:
@@ -50,7 +52,7 @@ def calendar():
         return render_template("calendar.html", email_address=email, streak=streak)
     return render_template("calendar.html")
 
-@app.route('/tasks')
+@pages_bp.route('/tasks')
 def tasks():
     user = get_authenticated_user(request)
     if user:

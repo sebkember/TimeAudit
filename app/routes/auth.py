@@ -1,10 +1,13 @@
-from flask import render_template, make_response
+import time
+from flask import render_template, make_response, request, Blueprint
 from email_validator import validate_email, EmailNotValidError
 
-from ..utils.auth import create_jwt_token, hash_password
+from ..utils.auth import create_jwt_token, hash_password, validateSignupData, COOKIE_EXPIRY_TIME
 from ..db.users import email_exists_in_database, insert_user, check_login
 
-@app.route("/login", methods = ["GET", "POST"])
+auth_pages_bp = Blueprint("auth-pages", __name__)
+
+@auth_pages_bp.route("/login", methods = ["GET", "POST"])
 def login():
     if (request.method == "GET"):
         return render_template("login.html")
@@ -47,7 +50,7 @@ def login():
             #return render_template("login.html", incorrect_login=False, login_error=True), 500
             return {"error": "server_error"}, 500
 
-@app.route("/signup", methods = ["GET", "POST"])
+@auth_pages_bp.route("/signup", methods = ["GET", "POST"])
 def signup():
     if (request.method == "GET"):
         return render_template("signup.html")

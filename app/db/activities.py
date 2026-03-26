@@ -265,3 +265,18 @@ def add_activity_to_database(activity, user_id, running=False):
     con.commit()
     con.close()
     return True
+
+def get_categories():
+    categories = []
+
+    # Connect to the database
+    con = sqlite3.connect("timeaudit.db")
+    cur = con.cursor()
+
+    # Get all categories
+    res = cur.execute("SELECT Name FROM Category;")
+
+    for category in res.fetchall():
+        categories.append(category[0])
+
+    return categories

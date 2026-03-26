@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6EBSYWNSLZ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-6EBSYWNSLZ');
+        </script>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Statistics | TimeAudit</title>
+        <meta name="description" content="View your time tracking statistics with TimeAudit. Analyze your time spent on activities, track your goals, and improve your productivity.">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <script src="{{ url_for('static', filename='statistics.js') }}" defer></script>
+        <meta name="robots" content="noindex">
+    </head>
+    <body style="font-family: 'Poppins';">
+        <div class="loading-screen" id="loading-screen">
+            <div class="loading-text-container">
+                <span class="loading-text">Loading</span>
+                <span class="loading-logo">TimeAudit</span>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+
+        <div class="title-bar">
+            <a href="/">
+                <p id="main-title">TimeAudit</p>
+            </a>
+
+            {% if email_address and streak %}
+                <div class="email-container">
+                    <span class="streak">{{ streak }}</span>
+                    <span class="email-address prevent-select">{{ email_address }}</span>
+                    <button class="logout-button" onclick="logout();">Log out</button>
+
+                    <div class="email-menu" hidden>
+                        <button class="change-email-button" onclick="openChangeEmailMenu()">Change email address</button>
+                        <button class="delete-account-button" onclick="openDeleteAccountMenu()">Delete account</button>
+                    </div>
+                </div>
+
+            {% else %}
+                <a class="login-button" href="login">Log in</a>
+            {% endif %}
+        </div>
+
+        <div class="nav-bar">
+            <nav id="nav">
+                <!--<a href="/">Home</a>-->
+                <a href="calendar">Calendar</a>
+                <a href="audit">Audit</a>
+                <a href="tasks">Tasks</a>
+            </nav>
+
+        </div>
+
+        <div class="top-bar">
+            
+        </div>
+
+        <div class="change-email-menu" hidden>
+            <h2>Change email address</h2>
+            
+            <label for="new-email">New email address</label>
+            <input type="email" id="new-email" name="new-email" required><br><br>
+
+            <p class="error-text" id="invalid-email-error" hidden>Please enter a valid email address.</p>
+            <p class="error-text" id="generic-email-error" hidden>There was an error changing your email address. Please try again later.</p>
+            <p class="error-text" id="email-exists-error" hidden>An account with this email address already exists.</p>
+
+            <button type="button" onclick="closeChangeEmailMenu();">Cancel</button>
+            <button type="button" onclick="changeEmailAddress();">Change email</button>
+        </div>
+
+        <div class="delete-account-menu" hidden>
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+
+            <button type="button" onclick="closeDeleteAccountMenu()">Cancel</button>
+            <button type="button" onclick="deleteAccount()" class="delete-account-button">Delete account</button>
+        </div>
+
+        <div class="statistics-container">
+            <!--<h2>Statistics</h2>
+            <p id="statistics-text">Here you can see your statistics.</p>-->
+            <div class="chart-container-wrapper">
+                <!--<div class="chart-container">
+                    <h3>Today's stats</h3>
+
+                    <p>Total time tracked: </p>
+                </div>-->
+
+                <div class="chart-container">
+                    <h3>Today's activities</h3>
+                    <!--<select class="by-time">
+                        <option value="Today">Today</option>
+                        <option value="This week">This week</option>
+                        <option value="This month">This month</option>
+                        <option value="This year">This year</option>
+                        <option value="All time">All time</option>
+                    </select>-->
+                    <div class="chart" id="">
+                        <canvas id="activity-pie-chart" width="200" height="200"></canvas>
+                        <div id ="activity-donut-inner" class="donut-inner">
+                            <!--<h5 id="activity-time-tracked">Time tracked: 0 hours</h5>-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Time spent by category</h3>
+                    <select class="by-time" id="category-time-select" onchange="getCategoryData(); loadCategoryPieChart();">
+                        <option value="Today">Today</option>
+                        <option value="Past week">Past week</option>
+                        <option value="Past month">Past month</option>
+                        <option value="Past year">Past year</option>
+                        <option value="All time">All time</option>
+                    </select>
+                    <div class="chart" id="category-time-chart-container">
+                        <canvas id="category-pie-chart" width="200" height="200"></canvas>
+                        <div id="category-donut-inner" class="donut-inner">
+                            <!--<h5 id="category-time-tracked">Time tracked: 0 hours</h5>-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Time spent on each category by day</h3>
+                    <!--<select class="by-time" id="single-category-time-select">
+                        <option value="Past week">Past week</option>
+                        <option value="Past month">Past month</option>
+                    </select> commenting this out for now as it isn't that important, having just a week will probably do for now-->
+
+                    <select class="by-category" id="single-category-select" onchange="loadCategoryBarChart();">
+                        <!--options will be populated with javascript-->
+                    </select>
+
+                    <div class="chart" id="single-category-time-spent-container">
+                        <canvas id="category-bar-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Tasks completed by day</h3>
+
+                    <div class="chart" id="goals-completed-container">
+                        <canvas id="goals-bar-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

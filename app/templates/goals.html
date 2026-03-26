@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6EBSYWNSLZ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-6EBSYWNSLZ');
+        </script>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <title>Tasks | TimeAudit</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+        <script src="{{ url_for('static', filename='goals.js') }}" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <meta name="robots" content="noindex">
+    </head>
+    <body class="goals-body" style="font-family: 'Poppins';">
+        <div class="loading-screen" id="loading-screen">
+            <div class="loading-text-container">
+                <span class="loading-text">Loading</span>
+                <span class="loading-logo">TimeAudit</span>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+
+        <div class="title-bar">
+            <a href="/">
+                <p id="main-title">TimeAudit</p>
+            </a>
+
+            {% if email_address and streak %}
+                <div class="email-container">
+                    <span class="streak">{{ streak }}</span>
+                    <span class="email-address prevent-select">{{ email_address }}</span>
+                    <button class="logout-button" onclick="logout();">Log out</button>
+
+                    <div class="email-menu" hidden>
+                        <button class="change-email-button" onclick="openChangeEmailMenu()">Change email address</button>
+                        <button class="delete-account-button" onclick="openDeleteAccountMenu()">Delete account</button>
+                    </div>
+                </div>
+
+            {% else %}
+                <a class="login-button" href="login">Log in</a>
+            {% endif %}
+        </div>
+
+        <div class="nav-bar">
+            <nav id="nav">
+                <!--<a href="/">Home</a>-->
+                <a href="calendar">Calendar</a>
+                <a href="audit">Audit</a>
+                <a href="tasks">Tasks</a>
+            </nav>
+
+        </div>
+
+        <div class="top-bar">
+            <button id="add-goal-button" onclick="openAddMenu();">Add task</button>
+        </div>
+
+        <div class="goals-container">
+            <div class="goals-menu">
+                <div id="goals-title">
+                    <h2>Your tasks</h2>
+                </div>
+
+                <div class="goal-selector-row">
+                    <button class="goal-selector-button" id="today-button" onclick="onTodayButtonClick();">Outstanding tasks</button>
+                    <button class="goal-selector-button" id="previous-button" onclick="onPreviousButtonClick();">Completed tasks</button>
+                </div>
+
+                <div id="goals-list">
+                    <!--Goal cards will go here-->
+                </div>
+            </div>
+        </div>
+
+        <div class="add-menu" hidden="true">
+            <h2>Add a task</h2>
+            <form action="" method="POST">
+                <label for="goal-name">Task name</label>
+                <input type="text" id="goal-name" name="goal-name" required><br><br>
+
+                <p class="error-text" id="goal-name-error" hidden>Please enter a task name.</p>
+
+                <label for="goal-duration-hours">Duration (hours)</label>
+                <input type="number" id="goal-duration-hours" name="goal-duration-hours" min="0" value="0" required><br><br>
+
+                <label for="goal-duration-minutes">Duration (minutes)</label>
+                <input type="number" id="goal-duration-minutes" name="goal-duration-minutes" min="0" max="59" value="0" required><br><br>
+
+                <p class="error-text" id="duration-error" hidden>Please enter a duration.</p>
+
+                <label for="goal-deadline">Deadline</label>
+                <input type="date" id="goal-deadline" name="goal-deadline"><br><br>
+
+                <p class="error-text" id="deadline-error" hidden>Please enter a valid deadline (today or in the future).</p>
+
+                <button type="button" onclick="closeAddMenu();">Cancel</button>
+                <button type="button" onclick="addGoal();">Add task</button>
+            </form>
+        </div>
+
+        <div class="change-email-menu" hidden>
+            <h2>Change email address</h2>
+            
+            <label for="new-email">New email address</label>
+            <input type="email" id="new-email" name="new-email" required><br><br>
+
+            <p class="error-text" id="invalid-email-error" hidden>Please enter a valid email address.</p>
+            <p class="error-text" id="generic-email-error" hidden>There was an error changing your email address. Please try again later.</p>
+            <p class="error-text" id="email-exists-error" hidden>An account with this email address already exists.</p>
+
+            <button type="button" onclick="closeChangeEmailMenu();">Cancel</button>
+            <button type="button" onclick="changeEmailAddress();">Change email</button>
+        </div>
+
+        <div class="delete-account-menu" hidden>
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+
+            <button type="button" onclick="closeDeleteAccountMenu()">Cancel</button>
+            <button type="button" onclick="deleteAccount()" class="delete-account-button">Delete account</button>
+        </div>
+
+        <div class="toast-notification">
+            <span class="toast-message">You just started a streak!</span>
+
+            <button class="toast-close-button" onclick="closeToastNotification();">×</button>
+        </div>
+    </body>
+</html>

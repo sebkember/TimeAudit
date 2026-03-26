@@ -140,7 +140,7 @@ COOKIE_DOMAIN=your_domain_here
 
 Initialise the database (run `schema.py`):
 
-```python
+```bash
 cd db
 python schema.py
 ```

@@ -65,3 +65,6 @@ def initialise_database():
                 )""")
     con.commit()
     con.close()
+
+if __name__=="__main__":
+    initialise_database()

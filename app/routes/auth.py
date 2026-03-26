@@ -1,9 +1,12 @@
 import time
 from flask import render_template, make_response, request, Blueprint
 from email_validator import validate_email, EmailNotValidError
+import os
 
 from ..utils.auth import create_jwt_token, hash_password, validateSignupData, COOKIE_EXPIRY_TIME
 from ..db.users import email_exists_in_database, insert_user, check_login
+
+COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", "localhost")
 
 auth_pages_bp = Blueprint("auth-pages", __name__)
 
@@ -36,7 +39,7 @@ def login():
                 response.headers["Content-Type"] = "application/json"
                 response.headers["Access-Control-Allow-Credentials"] = "true"
                 
-                response.set_cookie("token", token, domain="192.168.1.162", httponly=True, secure=False, samesite='Lax', expires=time.time() + COOKIE_EXPIRY_TIME)  # Cookie expires in 48 hours
+                response.set_cookie("token", token, domain=COOKIE_DOMAIN, httponly=True, secure=False, samesite='Lax', expires=time.time() + COOKIE_EXPIRY_TIME)  # Cookie expires in 48 hours
 
                 # Use make_response here to use cookies
                 return response
@@ -105,7 +108,7 @@ def signup():
                 response.headers["Access-Control-Allow-Credentials"] = "true"
 
                 # Add a cookie to the response
-                response.set_cookie("token", token, domain="192.168.1.162", httponly=True, secure=False, samesite='Lax', expires=time.time() + COOKIE_EXPIRY_TIME)
+                response.set_cookie("token", token, domain=COOKIE_DOMAIN, httponly=True, secure=False, samesite='Lax', expires=time.time() + COOKIE_EXPIRY_TIME)
 
                 return response
                 #return {"token": token}, 200

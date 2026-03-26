@@ -1,9 +1,12 @@
 from flask import make_response, request, Blueprint
 from email_validator import validate_email, EmailNotValidError
+import os
 
 from ...utils.auth import decode_jwt_token
 from ...utils.streak import format_streak
 from ...db.users import delete_account, email_exists_in_database, update_email_address, reset_streak_if_expired
+
+COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", "localhost")
 
 account_bp = Blueprint("account", __name__)
 
@@ -20,7 +23,7 @@ def logout_api():
 
     # Reset the HttpOnly cookie
     response = make_response({"success": True}, 200)
-    response.set_cookie("token", "", domain="192.168.1.162", expires=0, httponly=True, secure=False, samesite='Lax')
+    response.set_cookie("token", "", domain=COOKIE_DOMAIN, expires=0, httponly=True, secure=False, samesite='Lax')
     return response
 
 @account_bp.route("/api/account/delete", methods=["POST"])
@@ -42,7 +45,7 @@ def delete_account_api():
 
     # Reset the HttpOnly cookie
     response = make_response({"success": True}, 200)
-    response.set_cookie("token", "", domain="192.168.1.162", expires=0, httponly=True, secure=False, samesite='Lax')
+    response.set_cookie("token", "", domain=COOKIE_DOMAIN, expires=0, httponly=True, secure=False, samesite='Lax')
     return response
 
 @account_bp.route("/api/account/change-email", methods=["POST"])

@@ -818,7 +818,7 @@ async function saveActivityToServer(activity) {
 
         if (!activitiesResponse.ok ||!activitiesData.success) {
             // Send an alert that the activity was NOT posted to the server
-            //alert("Failed to post activity to the server. Check your network connection.");
+            showToastNotification("Failed to post activity to the server. Check your network connection.");
         }
         else {
             //alert("Posted activity successfully");
@@ -1014,9 +1014,15 @@ async function addTimeToGoal(activity) {
         const goals = JSON.parse(goalsString);
 
         for (let i = 0; i < goals.length; i++) {
-            if (goals[i].title == activity.goalName && goals[i].date == activity.date) {
+            // If the goal corresponds to the activity and has NOT been completed already (or has been completed today)
+            if (goals[i].title == activity.goalName && (goals[i].dateCompleted == "" || goals[i].dateCompleted == getIsoString(new Date()))) {
                 // Goal has been found - update its time
                 goals[i].timeDone += (activity.endTime - activity.startTime);
+
+                // If the goal is complete, set the date completed
+                if (goals[i].timeDone >= goals[i].duration) {
+                    goals[i].dateCompleted = getIsoString(new Date());
+                }
 
                 // Update the goal server-side (if the user is authenticated)
                 await updateGoalOnServer(goals[i]);
@@ -1048,9 +1054,14 @@ async function removeTimeFromGoal(goalName, activity) {
         const goals = JSON.parse(goalsString);
 
         for (let goal of goals) {
-            if (goal.date == activity.date && goal.title == goalName) {
+            if ((goal.title == goalName && activity.date == goal.date) || (goal.title == goalName && goal.dateCompleted == activity.date) || (goal.title == goalName && goal.dateCompleted == getIsoString(new Date()))) {
                 // Remove the time from the goal
                 goal.timeDone -= (activity.endTime - activity.startTime);
+
+                // If the goal is no longer completed as a result, set dateCompleted to empty
+                if (goal.timeDone < goal.duration) {
+                    goal.dateCompleted = "";
+                }
 
                 // Update local storage
                 localStorage.setItem("goals", goals);
@@ -1813,9 +1824,22 @@ async function editActivity() {
 
 }
 
+// Closes all menus
+function closeAllMenus() {
+    closeAddMenu();
+    closeScheduledAddMenu();
+    closeEditMenu();
+    closeGenerateScheduleMenu();
+    closeChangeEmailMenu();
+    closeDeleteAccountMenu();
+}
+
 function openAddMenu() {
     // Make sure the start time is correct if the checkbox is checked
     onStartNowCheckboxChange();
+
+    // Hide any other open menus
+    closeAllMenus();
 
     // Unhide the menu
     const addMenu = document.querySelector("#add-activity-menu");
@@ -1836,8 +1860,8 @@ function openAddMenu() {
     if (goalsString != null) {
         const goals = JSON.parse(goalsString);
         for (let i = 0; i < goals.length; i++) {
-            // If the goal is on the current day add its name as an option
-            if (goals[i].date == getIsoString(new Date())) {
+            // If the goal is on the current day or in the future, or if it is not completed, add its name as an option
+            if (goals[i].date >= getIsoString(new Date()) || goals[i].dateCompleted == "") {
                 const goalOption = document.createElement("option");
                 goalOption.value = goals[i].title;
                 goalOption.textContent = goals[i].title;
@@ -1849,12 +1873,23 @@ function openAddMenu() {
 }
 
 function openScheduledAddMenu() {
+    // Hide any other open menus
+    closeAllMenus();
+
     // Unhide the menu
     const addMenu = document.querySelector("#add-scheduled-activity-menu");
     addMenu.hidden = false;
 }
 
 function openEditMenu(title, category, startTime, endTime, day, ongoing) {
+    // Get the menu
+    const editMenu = document.querySelector("#edit-activity-menu");
+    
+    // If the menu is already unhidden, do nothing
+    if (!editMenu.hidden) {
+        return;
+    }
+
     // Get the form inputs
     const nameInput = document.querySelector("#edit-activity-name");
     const categoryInput = document.querySelector("#edit-category");
@@ -1892,8 +1927,8 @@ function openEditMenu(title, category, startTime, endTime, day, ongoing) {
     if (goalsString != null) {
         const goals = JSON.parse(goalsString);
         for (let i = 0; i < goals.length; i++) {
-            // If the goal is on the current day add its name as an option
-            if (goals[i].date == getIsoString(new Date()) && goals[i].title != goalName) {
+            // If the goal is on the current day or in the future, or if it is not completed, add it as an option (but not if current goal)
+            if (goals[i].date >= getIsoString(new Date()) || goals[i].dateCompleted == "" && goals[i].title != goalName) {
                 const goalOption = document.createElement("option");
                 goalOption.value = goals[i].title;
                 goalOption.textContent = goals[i].title;
@@ -1930,8 +1965,7 @@ function openEditMenu(title, category, startTime, endTime, day, ongoing) {
     // Set the previous goal name
     prevGoal = goalInput.value;
 
-    // Get the menu
-    const editMenu = document.querySelector("#edit-activity-menu");
+    // Unhide the menu
     editMenu.hidden = false;
 }
 
@@ -2251,6 +2285,10 @@ async function openGenerateScheduleMenu() {
         return;
     }
 
+    // Close any other menus
+    closeAllMenus();
+
+    // Unhide the generate schedule menu
     document.querySelector("#generate-schedule-menu").hidden = false; 
 
     // Clear time inputs
@@ -2264,6 +2302,10 @@ async function openGenerateScheduleMenu() {
 function closeGenerateScheduleMenu() {
     document.querySelector("#generate-schedule-menu").hidden = true;
 
+    // Clear any existing error messages
+    document.querySelector("#generate-schedule-time-input-error").hidden = true;
+    document.querySelector("#generate-schedule-date-error").hidden = true;
+
     // Clear time inputs
     //document.querySelector("#generate-schedule-start-time").value = "";
     //document.querySelector("#generate-schedule-end-time").value = "";
@@ -2276,13 +2318,36 @@ async function generateSchedule() {
     const startTime = document.querySelector("#generate-schedule-start-time").value;
     const endTime = document.querySelector("#generate-schedule-end-time").value;
 
+    // Get date inputs
+    const startDate = document.querySelector("#generate-schedule-start-date").value;
+    const endDate = document.querySelector("#generate-schedule-end-date").value;
+
     // Convert to minutes format
     const startTimeMinutes = stringTimeToMinutes(startTime);
     const endTimeMinutes = stringTimeToMinutes(endTime);
 
-    if (startTime == "" || endTime == "" || startTimeMinutes >= endTimeMinutes) {
+    if (startTime == "" || endTime == "" || startTimeMinutes >= endTimeMinutes || isNaN(startTimeMinutes) || isNaN(endTimeMinutes)) {
         // Show an error message
         document.querySelector("#generate-schedule-time-input-error").hidden = false;
+        return;
+    }
+
+    // Validate the given dates
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+
+    if (startDate == "" || endDate == "" || startDate > endDate || startDateObj.toString() == "Invalid Date" || endDateObj.toString() == "Invalid Date" || getIsoString(startDateObj) < getIsoString(new Date())) {
+        // Show an error message
+        document.querySelector("#generate-schedule-date-error").hidden = false;
+        return;
+    }
+
+    // Check whether the dates are more than 7 days apart
+    const daysApart = parseInt((endDateObj - startDateObj) / (1000 * 60 * 60 * 24));
+
+    if (daysApart > 6 || daysApart < 0) {
+        // Show error message
+        document.querySelector("#generate-schedule-date-error").hidden = false;
         return;
     }
 
@@ -2302,12 +2367,6 @@ async function generateSchedule() {
         return;
     }
 
-    // If the user has no scheduled activities, prompt them to add some
-    //if (scheduledActivities.length == 0) {
-        //showToastNotification("⚠️ No scheduled activities for today found. Please add some scheduled activities to generate a schedule. ⚠️");
-        //return;
-    //}
-
     // Show the loading screen
     loadingScreen.style.display = "flex";
 
@@ -2322,9 +2381,11 @@ async function generateSchedule() {
             "X-Requested-With": "XMLHttpRequest"
         },
         body: JSON.stringify({
-            date: getIsoString(new Date()),
+            //date: getIsoString(new Date()),
             startTime: startTimeMinutes,
-            endTime: endTimeMinutes
+            endTime: endTimeMinutes,
+            startDate: getIsoString(startDateObj),
+            endDate: getIsoString(endDateObj)
         })
     });
 
@@ -2360,7 +2421,15 @@ function showSuggestedActivities() {
     // Show the suggested activities
     for (let i = 0; i < suggestedScheduledActivities.length; i++) {
         const suggestedActivity = suggestedScheduledActivities[i];
-        addScheduledActivityBlock(suggestedActivity.title, suggestedActivity.category, suggestedActivity.startTime, suggestedActivity.endTime, getCurrentDay(), true);
+
+        // Get the day of the activity
+        const suggestedActivityDate = new Date(suggestedActivity.date);
+        const suggestedActivityDay = (suggestedActivityDate.getDay() + 6) % 7;
+        
+        // If the activity is in the current week, add it to the calendar
+        if (isInWeek(firstDayOfWeek, suggestedActivityDate)) {
+            addScheduledActivityBlock(suggestedActivity.title, suggestedActivity.category, suggestedActivity.startTime, suggestedActivity.endTime, suggestedActivityDay, true);   
+        }
     }
 }
 
@@ -2383,8 +2452,17 @@ function confirmSchedule() {
         // Add the scheduled activity to the scheduled activities array
         saveScheduledActivity(suggestedActivity);
 
-        // Add the block to the calendar
-        addScheduledActivityBlock(suggestedActivity.title, suggestedActivity.category, suggestedActivity.startTime, suggestedActivity.endTime, getCurrentDay());
+
+
+        // Get the day of the activity
+        const suggestedActivityDate = new Date(suggestedActivity.date);
+        const suggestedActivityDay = (suggestedActivityDate.getDay() + 6) % 7;
+
+
+        // Add the block to the calendar if the activity is in the current week
+        if (isInWeek(firstDayOfWeek, suggestedActivityDate)) {
+            addScheduledActivityBlock(suggestedActivity.title, suggestedActivity.category, suggestedActivity.startTime, suggestedActivity.endTime, suggestedActivityDay);
+        }
 
     }
 

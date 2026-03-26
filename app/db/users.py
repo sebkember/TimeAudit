@@ -73,7 +73,6 @@ def reset_streak_if_expired(user_id):
     if (no_activities_on_previous_day and no_activities_on_current_day):
         # User recorded no activities yesterday so remove their streak
         res = cur.execute("UPDATE User SET Streak = 0 WHERE UserID = ?;", (user_id,))
-        print("Streak reset")
 
     # Write changes
     con.commit()
@@ -161,7 +160,6 @@ def check_login(email_address, password):
 
     if (record == None):
         # User with the given email address does not exist
-        print("User with the given email address does not exist")
         return -1
     
     # Check if the password matches the hashed password
@@ -169,10 +167,8 @@ def check_login(email_address, password):
 
     if (not bcrypt.checkpw(password.encode("utf-8"), stored_password_hash.encode("utf-8"))):
         # Passwords do not match
-        print("Passwords do not match")
         return -1
     
-    print("Login successful")
     # Return the UserID
     return record[0]
     

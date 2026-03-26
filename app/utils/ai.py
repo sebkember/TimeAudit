@@ -16,7 +16,6 @@ openai_client = OpenAI(api_key=OPENAI_API_KEY)
 def generate_user_schedule(user_id, date, startTime, endTime): 
     # Get scheduled activities from the database
     scheduled_activities = get_scheduled_activities_from_database_as_dicts(user_id)
-    #print(scheduled_activities)
 
     # Get activities from the database
     activities = get_activities_from_database_as_dicts(user_id)
@@ -31,7 +30,6 @@ def generate_user_schedule(user_id, date, startTime, endTime):
 
     # Get goals from the database
     goals = get_todays_goals_from_database_as_dicts(user_id)
-    #print(goals)
 
     # Get categories from the database
     categories = get_categories()

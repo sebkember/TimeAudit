@@ -78,7 +78,6 @@ def sync_goals_with_database(goals, user_id):
                 break
         
         if (not exists):
-            print(f"Goal {goal['title']} does not exist in the database, adding it now.")
 
             # Add the goal to the database
             add_goal_to_database(goal, user_id)

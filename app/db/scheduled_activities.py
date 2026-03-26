@@ -13,7 +13,6 @@ def sync_scheduled_activities_with_database(scheduled_activities, user_id):
                 break
 
         if (not exists):
-            print(f"Scheduled Activity {scheduled_activity['title']} does not exist in the database, adding it now.")
 
             # Add the scheduled activity to the database
             add_scheduled_activity_to_database(scheduled_activity, user_id)
@@ -26,7 +25,6 @@ def remove_scheduled_activity_from_database(scheduled_activity, user_id):
 
     # Remove the scheduled activity from the database
     res = cur.execute("DELETE FROM ScheduledActivity WHERE Title = ? AND StartTime = ? AND EndTime = ? AND Date = ? AND UserID = ?;", (scheduled_activity["title"], scheduled_activity["startTime"], scheduled_activity["endTime"], scheduled_activity["date"], user_id))
-    print("DELETED SCHEDULED ACTIVITY: ", scheduled_activity["title"], scheduled_activity["startTime"], scheduled_activity["endTime"], scheduled_activity["date"], user_id)
 
     # Commit to database
     con.commit()
@@ -90,13 +88,10 @@ def add_scheduled_activities_to_database(scheduled_activities, user_id):
         activity_end_time = activity["endTime"]
         activity_date = activity["date"]
 
-        print(f"Adding scheduled activity: {activity_title}, {activity_category}, {activity_start_time}, {activity_end_time}, {activity_date}")
-
         # Get the correct CategoryID from the category table
         res = cur.execute("SELECT CategoryID FROM Category WHERE Name = ?;", (activity_category,))
         one_item_tuple = res.fetchone()
         if one_item_tuple == None:
-            print("Error: No such category exists")
             return False
         activity_category_id = one_item_tuple[0]
 
@@ -123,7 +118,6 @@ def add_scheduled_activity_to_database(scheduled_activity, user_id):
     res = cur.execute("SELECT CategoryID FROM Category WHERE Name = ?;", (activity_category,))
     one_item_tuple = res.fetchone()
     if one_item_tuple == None:
-        print("Error: No such category exists.")
         return False
     activity_category_id = one_item_tuple[0]
 

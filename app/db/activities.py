@@ -13,7 +13,6 @@ def sync_activities_with_database(activities, user_id):
                 break
         
         if (not exists):
-            print(f"Activity {activity['title']} does not exist in the database, adding it now.")
 
             # Add the activity to the database
             add_activity_to_database(activity, user_id)
@@ -186,15 +185,10 @@ def add_activities_to_database(activities, user_id):
         activity_end_time = activity["endTime"]
         activity_date = activity["date"]
 
-        print(f"Adding activity: {activity_title}, {activity_category}, {activity_start_time}, {activity_end_time}, {activity_date}")
-
-
-
         # Get the correct CategoryID from the category table
         res = cur.execute("SELECT CategoryID FROM Category WHERE Name = ?;", (activity_category,))
         one_item_tuple = res.fetchone()
         if one_item_tuple == None:
-            print("Error: No such category exists")
             return False
         activity_category_id = one_item_tuple[0]
 
@@ -205,13 +199,11 @@ def add_activities_to_database(activities, user_id):
         if ("goalName" in activity and activity["goalName"] != "None"):
             # Get the goal name
             activity_goal_name = activity["goalName"]
-            print(f"Activity goal name: {activity_goal_name}")
 
             # Get the GoalID of the goal associated with that activity (if there is one)
             res = cur.execute("SELECT * FROM Goal WHERE Title = ? AND Date = ? AND UserID = ?", (activity_goal_name, activity_date, user_id))
             one_item_tuple = res.fetchone()
             if (one_item_tuple == None):
-                print("Error: No such goal exists.")
                 return False
             goal_id = one_item_tuple[0]
 
@@ -238,7 +230,6 @@ def add_activity_to_database(activity, user_id, running=False):
     res = cur.execute("SELECT CategoryID FROM Category WHERE Name = ?;", (activity_category,))
     one_item_tuple = res.fetchone()
     if one_item_tuple == None:
-        print("Error: No such category exists.")
         return False
     activity_category_id = one_item_tuple[0]
 
@@ -254,7 +245,6 @@ def add_activity_to_database(activity, user_id, running=False):
         res = cur.execute("SELECT * FROM Goal WHERE Title = ? AND Date = ? AND UserID = ?", (activity_goal_name, activity_date, user_id))
         one_item_tuple = res.fetchone()
         if (one_item_tuple == None):
-            print("Error: No such goal exists.")
             return False
         goal_id = one_item_tuple[0]
     
@@ -292,7 +282,6 @@ def insert_activity(title, category, start_time, end_time, date, goal_id, user_i
     category_id = res.fetchone()
 
     if (category_id == None):
-        print("An error occurred")
         return False
     
     # Add the activity to the database with the correct CategoryID

@@ -72,18 +72,15 @@ def change_email_api():
         email_address = email_info.normalized
     except EmailNotValidError as e:
         print(str(e))
-        print("Invalid email address")
         return {"error": "invalid_email"}, 400
 
     # If the email already exists, return an error
     if (email_exists_in_database(email_address)):
-        print("Email exists")
         return {"error": "email_exists"}, 400
 
     # Update the email address
     update_email_address(user_id, email_address)
 
-    print("LOL")
     return {"success": True}, 200
 
 @account_bp.route("/api/account/update-streak", methods=["POST"])

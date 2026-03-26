@@ -49,7 +49,6 @@ def login():
                 return {"error": "incorrect_email_or_password"}, 401
 
         except Exception as e:
-            print(f"An error occurred during login: {str(e)}")
             #return render_template("login.html", incorrect_login=False, login_error=True), 500
             return {"error": "server_error"}, 500
 
@@ -91,10 +90,8 @@ def signup():
 
             # Inser the user into the database and get their UserID
             user_id = insert_user(email_address, hashed_password)
-            print("User signed up successfully")
 
             if (user_id == -1):
-                print("An error occurred while signing up")
                 return {"error": "server_error"}, 500
             else:
                 # Create a new JWT token for the user
@@ -115,6 +112,5 @@ def signup():
 
 
         except Exception as e:
-            print(f"An error occurred during signup: {str(e)}")
             #return render_template("signup.html", email_exists_error=False, signup_error=True), 500
             return {"error": "server_error"}, 500

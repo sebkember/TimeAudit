@@ -46,13 +46,10 @@ def decode_jwt_token(token):
     try:
         # Decode JWT token
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        print("Token is valid")
         return decoded_token
     except jwt.ExpiredSignatureError:
-        print("Token has expired")
         return {"error": "expired_token"}
     except jwt.InvalidTokenError:
-        print("Invalid token")
         return {"error": "invalid_token"}
     
 def authenticate_user(token):

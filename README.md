@@ -36,22 +36,47 @@ A full-stack AI-powered time tracking web app for students and professionals. Tr
 
 ```
 timeaudit/
-├── main.py                  # Flask app: all routes and database logic
-├── templates/
-│   ├── index.html           # Landing page
-│   ├── calendar.html        # Main time tracking view
-│   ├── goals.html           # Task management
-│   ├── statistics.html      # Analytics dashboard
-│   ├── login.html           # Login page
-│   └── signup.html          # Signup page
-└── static/
-    ├── calendar.js          # Calendar/activity tracking logic
-    ├── goals.js             # Task management logic
-    ├── statistics.js        # Chart rendering and data fetching
-    ├── login.js             # Login, localStorage sync on auth
-    ├── signup.js            # Signup and initial data upload
-    ├── index.js             # Landing page auth redirect
-    └── style.css            # Global styles
+├── main.py                      # Entry point — starts the Flask app
+├── app/
+│   ├── __init__.py              # App factory 
+│   ├── routes/
+│   │   ├── pages.py             # Page routes (render_template)
+│   │   ├── auth.py              # /login, /signup
+│   │   └── api/
+│   │       ├── activities.py    # Activity CRUD and sync endpoints
+│   │       ├── goals.py         # Goal CRUD and sync endpoints
+│   │       ├── scheduled_activities.py  # Scheduled activity endpoints
+│   │       ├── account.py       # Account management (delete, email change)
+│   │       ├── auth.py          # /api/auth authentication check
+│   │       └── ai.py            # AI schedule generation endpoint
+│   ├── db/
+│   │   ├── activities.py        # Activity database functions
+│   │   ├── goals.py             # Goal database functions
+│   │   ├── scheduled_activities.py  # Scheduled activity database functions
+│   │   ├── users.py             # User database functions
+│   │   └── schema.py            # Database initialisation
+│   ├── utils/
+│   │   ├── auth.py              # JWT, hashing, authentication helpers
+│   │   ├── streak.py            # Streak formatting
+│   │   ├── dates.py             # Date utilities
+│   │   └── ai.py                # OpenAI schedule generation logic
+│   ├── templates/
+│   │   ├── index.html           # Landing page
+│   │   ├── calendar.html        # Main time tracking view
+│   │   ├── tasks.html           # Task management
+│   │   ├── statistics.html      # Analytics dashboard
+│   │   ├── login.html           # Login page
+│   │   └── signup.html          # Signup page
+│   └── static/
+│       ├── src/
+│       │   ├── calendar.js      # Calendar/activity tracking logic
+│       │   ├── goals.js         # Task management logic
+│       │   ├── statistics.js    # Chart rendering and data fetching
+│       │   ├── login.js         # Login and localStorage sync
+│       │   ├── signup.js        # Signup and initial data upload
+│       │   └── index.js         # Landing page auth redirect
+│       └── assets/
+│           └── style.css        # Global styles
 ```
 
 ### Data Flow

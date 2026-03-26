@@ -6,6 +6,15 @@
 .ebextensions/*.config
 app.config
 
+# Ignore cache files
+__pycache__/*
+*.pyc
+
+# Ignore assets
+*.mp4
+*.ico
+*.png
+
 # Ignore zip files
 timeaudit.zip
 # Ignore database file

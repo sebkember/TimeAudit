@@ -1,11 +1,31 @@
 import jwt 
 import time
 import os
+import bcrypt
+
+from ..db.users import get_email_address_from_user_id, reset_streak_if_expired
+from .streak import format_streak
 
 # Cookies expire in 48 hours
 COOKIE_EXPIRY_TIME = int(172800)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+
+def validateSignupData(email_address, password):
+    # Check that the password is an appropriate length
+    if (len(password) < 8):
+        return False
+    
+    # Check whether the inputs are empty
+    if (email_address == "" or password == ""):
+        return False
+    
+    return True
+
+def hash_password(password):
+    # Hash the password using bcrypt
+    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return hashed.decode('utf-8')
 
 def create_jwt_token(user_id):
     # Get the current timestamp (in SECONDS)
@@ -31,6 +51,13 @@ def decode_jwt_token(token):
     except jwt.InvalidTokenError:
         print("Invalid token")
         return {"error": "invalid_token"}
+    
+def authenticate_user(token):
+    decoded_token = decode_jwt_token(token)
+    if ("error" in decoded_token):
+        return False
+    else:
+        return True
     
     # app/utils/auth.py
 def get_authenticated_user(request):

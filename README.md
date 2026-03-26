@@ -135,13 +135,14 @@ Create a `.env` file:
 ```
 SECRET_KEY=your_secret_key_here
 OPENAI_API_KEY=your_openai_key_here
+COOKIE_DOMAIN=your_domain_here
 ```
 
-Initialise the database (uncomment the line in `main.py`):
+Initialise the database (run `schema.py`):
 
 ```python
-# In main.py, temporarily uncomment:
-initialise_database()
+cd db
+python schema.py
 ```
 
 Then run:
@@ -159,10 +160,3 @@ The app will be available at `http://localhost:5000`.
 The app is deployed on a Linux VPS with Nginx as a reverse proxy in front of Gunicorn. HTTPS is handled via Let's Encrypt.
 
 ---
-
-## Known Limitations / Roadmap
-
-- [ ] Cookie domain is currently hardcoded (`192.168.1.162`) — should be environment-variable-driven
-- [ ] `initialise_database()` must be manually uncommented on first run
-- [ ] Rate limiting is initialised but not applied to individual routes
-- [ ] No password reset / forgot password flow

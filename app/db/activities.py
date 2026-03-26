@@ -280,3 +280,26 @@ def get_categories():
         categories.append(category[0])
 
     return categories
+
+def insert_activity(title, category, start_time, end_time, date, goal_id, user_id):
+    con = sqlite3.connect("timeaudit.db")
+    cur = con.cursor()
+
+    # Get the correct category for the activity
+
+    res = cur.execute("SELECT CategoryID FROM Category WHERE Name = ?", category)
+    con.commit()
+    category_id = res.fetchone()
+
+    if (category_id == None):
+        print("An error occurred")
+        return False
+    
+    # Add the activity to the database with the correct CategoryID
+
+    res = cur.execute("INSERT INTO Activity (Title, CategoryID, StartTime, EndTime, Date, GoalID, UserID, Running) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", (title, category_id, start_time, end_time, date, goal_id, user_id, False))
+    con.commit()
+    con.close()
+
+    # TODO: Error checking
+    return True 

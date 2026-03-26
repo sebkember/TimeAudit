@@ -6,7 +6,6 @@ from .routes.auth import auth_pages_bp
 from .routes.pages import pages_bp
 from .routes.api.account import account_bp
 from .routes.api.activities import activities_bp
-from .routes.api.ai import generate_bp
 from .routes.api.auth import auth_bp
 from .routes.api.goals import goals_bp
 from .routes.api.scheduled_activities import scheduled_activities_bp
@@ -15,6 +14,9 @@ limiter = Limiter(key_func=get_remote_address)
 
 def app_factory():
   app = Flask(__name__)
+
+  # Workaround for limiter circular import
+  from .routes.api.ai import generate_bp
 
   # Attach rate limiter
   limiter.init_app(app)

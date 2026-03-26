@@ -11,6 +11,9 @@ COOKIE_EXPIRY_TIME = int(172800)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+if not SECRET_KEY:
+    raise Exception("No secret key found")
+
 def validateSignupData(email_address, password):
     # Check that the password is an appropriate length
     if (len(password) < 8):

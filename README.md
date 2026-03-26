@@ -38,7 +38,7 @@ A full-stack AI-powered time tracking web app for students and professionals. Tr
 timeaudit/
 ├── main.py                      # Entry point — starts the Flask app
 ├── app/
-│   ├── __init__.py              # App factory (create_app)
+│   ├── __init__.py              # App factory 
 │   ├── routes/
 │   │   ├── pages.py             # Page routes (render_template)
 │   │   ├── auth.py              # /login, /signup

@@ -13,13 +13,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>TimeAudit | Free AI Time Tracker for Students and Professionals</title>
-        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+        <link rel="icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" type="image/x-icon">
         <meta name="description" content="TimeAudit is a free AI time tracking tool designed for both students and professionals. Track your time (conduct a time audit), plan your tasks, and improve your productivity effortlessly - no signup required.">
         <meta name="keywords" content="time tracking, time tracker, calendar, AI scheduling, AI calendar, productivity, time management, free time tracker, time audit, students, personal, individuals, professionals, time audit app, time tracking app, free time tracking app, AI time tracker, AI calendar app">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='assets/style.css') }}">
         <!--<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">-->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
-        <script src="{{ url_for('static', filename='index.js') }}" defer></script>
+        <script src="{{ url_for('static', filename='assets/index.js') }}" defer></script>
     </head>
     <body style="font-family: 'Poppins';">
         <div class="title-bar" style="position: fixed; top: 0;">
@@ -56,7 +56,7 @@
 
                 <!--<img class="hero-image" src="{{url_for('static', filename='hero_image.png') }}" alt="TimeAudit tracking interface" width="1000", height="600">-->
                 <video class="hero-video" muted loop autoplay>
-                    <source src="{{url_for('static', filename='app_demo.mp4') }}" type="video/mp4">
+                    <source src="{{url_for('static', filename='assets/app_demo.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
@@ -86,7 +86,7 @@
 
             <div class="tutorial-box">
                 <video class="tutorial-video" muted loop autoplay>
-                    <source src="{{url_for('static', filename='calendar_demo.mp4') }}" type="video/mp4">
+                    <source src="{{url_for('static', filename='assets/calendar_demo.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
                 <span>Log an activity by clicking the start button and entering the activity details. You can add previously-completed activities and track current activities.</span>
@@ -96,14 +96,14 @@
             <div class="tutorial-box">
                 <!--<img class="tutorial-gif" src="{{url_for('static', filename='hero_image.png') }}" alt="Gif showing how to add a goal" width="500" height="300">-->
                 <video class="tutorial-video" muted loop autoplay>
-                    <source src="{{url_for('static', filename='goals_demo.mp4') }}" type="video/mp4">
+                    <source src="{{url_for('static', filename='assets/goals_demo.mp4') }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
                 <span>Add customised tasks and track each task's progress. Link a task when adding an activity to the calendar to complete tasks and stay accountable.</span>
             </div>
 
             <div class="tutorial-box">
-                <img class="tutorial-gif" src="{{url_for('static', filename='statistics.png') }}" alt="Gif showing statistics page">
+                <img class="tutorial-gif" src="{{url_for('static', filename='assets/statistics.png') }}" alt="Gif showing statistics page">
                 <span>View statistics and insights to improve your productivity.</span>
             </div>
 
